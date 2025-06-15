@@ -56,7 +56,7 @@ int main()
         printf("returns start count: %ld\n", nr);
     }
 
-    printf("\033[H\033[J"); // Clears the screen and moves the cursor to the top-left corner
+    printf("%s", clear_screen); // Clears the screen before the final program outputs
     printf("characters start count: %ld\n", nc);
     printf("lines start count: %ld\n", nl);
     printf("tabs start count: %ld\n", nt);
