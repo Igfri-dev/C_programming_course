@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+//NOT COMPLETED
+
 int main()
 {
     long nc, nl, nt, nr; // Declare variables for character count, line count, tab count and return count
