@@ -1,7 +1,5 @@
 #include <stdio.h>
 
-//NOT COMPLETED
-
 int main()
 {
     long nc, nl, nt, nr; // Declare variables for character count, line count, tab count and return count
@@ -18,8 +16,7 @@ int main()
 
 
     // Ask the user to enter characters
-    printf("Enter characters (Ctrl+D to end on Unix/Linux or Ctrl+Z on Windows):\n");
-    // Detectar el sistema operativo
+    // Detect OS
     #ifdef _WIN32
         printf("Enter characters (Ctrl+Z to end):\n");
     #elif __APPLE__
