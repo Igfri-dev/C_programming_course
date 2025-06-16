@@ -9,9 +9,9 @@
     * performs the conversion, and then displays the result in Celsius.
     * Example table for conversion:
     * 
-    * |------------|---------|
+    * +------------+---------+
     * | Fahrenheit | Celsius |
-    * |------------|---------|
+    * +------------+---------+
     * | 0          | -17     |
     * | 20         | -6      |
     * | 40         | 4       |
@@ -19,7 +19,7 @@
     * | 80         | 26      |
     * | 100        | 37      |
     * | 120        | 48      |
-    * |------------|---------|
+    * +------------+---------+
     * 
 */
 int main() {
@@ -36,9 +36,9 @@ int main() {
     printf("Temperature in Celsius: %.2f\n", celsius);
 
     // Print the table header
-    printf("|------------|---------|\n");
+    printf("+------------+---------+\n");
     printf("| Fahrenheit | Celsius |\n");
-    printf("|------------|---------|\n");
+    printf("+------------+---------+\n");
 
     // Print the current Fahrenheit and corresponding Celsius values
     // Note: The format specifiers %10d and %7d are used to align the output in the table.
@@ -47,6 +47,6 @@ int main() {
     // .2f is used to display the values with two decimal places.
     printf("| %10.2f | %7.2f |\n", fahrenheit, celsius);
     // Print the table footer
-    printf("|------------|---------|\n");
+    printf("+------------+---------+\n");
     return 0;
 }

@@ -34,9 +34,9 @@ int main() {
     fahrenheit = lower;
 
     // Print the table header
-    printf("|------------|---------|\n");
+    printf("+------------+---------+\n");
     printf("| Fahrenheit | Celsius |\n");
-    printf("|------------|---------|\n");
+    printf("+------------+---------+\n");
 
     // Convert Fahrenheit to Celsius using the formula
     celsius = (fahrenheit - 32.0) * 5.0 / 9.0;
@@ -58,7 +58,7 @@ int main() {
     }
 
     // Print the table footer
-    printf("|------------|---------|\n");
+    printf("+------------+---------+\n");
 
     return 0;
 }

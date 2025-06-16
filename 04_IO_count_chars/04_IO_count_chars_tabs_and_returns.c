@@ -19,10 +19,29 @@ int main()
 
     // Ask the user to enter characters
     printf("Enter characters (Ctrl+D to end on Unix/Linux or Ctrl+Z on Windows):\n");
-    printf("characters start count: %ld\n", nc);
-    printf("lines start count: %ld\n", nl);
-    printf("tabs start count: %ld\n", nt);
-    printf("returns start count: %ld\n", nr);
+    // Detectar el sistema operativo
+    #ifdef _WIN32
+        printf("Enter characters (Ctrl+Z to end):\n");
+    #elif __APPLE__
+        printf("Enter characters (Ctrl+D to end):\n");
+    #elif __linux__
+        printf("Enter characters (Ctrl+D to end):\n");
+    #else
+        printf("Enter characters (Ctrl+D to end on Unix/Linux or Ctrl+Z on Windows):\n");
+    #endif
+
+
+    // Print the starting count values
+    printf("+--------------------------+----------+\n");
+    printf("| Characters start count:  | %8ld |\n", nc);
+    printf("+--------------------------+----------+\n");
+    printf("| Lines start count:       | %8ld |\n", nl);
+    printf("+--------------------------+----------+\n");
+    printf("| Tabs start count:        | %8ld |\n", nt);
+    printf("+--------------------------+----------+\n");
+    printf("| Carriage returns count:  | %8ld |\n", nr);
+    printf("+--------------------------+----------+\n");
+
 
     // Read characters until end of file
     while ((c = getchar()) != EOF)
@@ -48,21 +67,20 @@ int main()
             // Increment character count for each character read
             ++nc;
         }
-
-        printf("%s", clear_screen); // Clear the screen after each character input
-
-        printf("Enter characters (Ctrl+D to end on Unix/Linux or Ctrl+Z on Windows):\n");
-        printf("characters start count: %ld\n", nc);
-        printf("lines start count: %ld\n", nl);
-        printf("tabs start count: %ld\n", nt);
-        printf("returns start count: %ld\n", nr);
     }
 
     printf("%s", clear_screen); // Clears the screen before the final program outputs
-    printf("characters start count: %ld\n", nc);
-    printf("lines start count: %ld\n", nl);
-    printf("tabs start count: %ld\n", nt);
-    printf("returns start count: %ld\n", nr);
+
+    // Print the output table
+    printf("+--------------------------+----------+\n");
+    printf("| Characters total count:  | %8ld |\n", nc);
+    printf("+--------------------------+----------+\n");
+    printf("| Lines total count:       | %8ld |\n", nl);
+    printf("+--------------------------+----------+\n");
+    printf("| Tabs total count:        | %8ld |\n", nt);
+    printf("+--------------------------+----------+\n");
+    printf("| Carriage returns count:  | %8ld |\n", nr);
+    printf("+--------------------------+----------+\n");
 
     return 0;
 }

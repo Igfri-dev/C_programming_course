@@ -9,9 +9,9 @@
     * performs the conversion in increments of 20units from 0 to 300 (Fahrenheit), and then displays the result in Celsius.
     * Example table for conversion:
     * 
-    * |------------|---------|
+    * |------------+---------|
     * | Fahrenheit | Celsius |
-    * |------------|---------|
+    * +------------+---------|
     * |          0 |      17 |
     * |         20 |      -6 |
     * |         40 |       4 |
@@ -19,7 +19,7 @@
     * |         80 |      26 |
     * |        100 |      37 |
     * |        120 |      48 |
-    * |------------|---------|
+    * +------------+---------+
     * 
 */
 int main() {
@@ -32,9 +32,9 @@ int main() {
     step = 20;   // Step size for the temperature increments
 
     // Print the table header
-    printf("|------------|---------|\n");
+    printf("+------------+---------+\n");
     printf("| Fahrenheit | Celsius |\n");
-    printf("|------------|---------|\n");
+    printf("+------------+---------+\n");
 
     // Convert Fahrenheit to Celsius using the formula
     celsius = (fahrenheit - 32.0) * 5.0 / 9.0;
@@ -52,7 +52,7 @@ int main() {
     }
 
     // Print the table footer
-    printf("|------------|---------|\n");
+    printf("+------------+---------+\n");
 
     return 0;
 }
