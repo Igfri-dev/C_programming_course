@@ -48,158 +48,212 @@ NOT COMPLETED
 */
 #include <stdio.h>
 #include <stdint.h>
-#include <stdlib.h> // For rand() and srand()
-#include <time.h>   // For time()
+#include <stdlib.h>
+#include <time.h>
 
 #define MIN_CHAR 97
 #define MAX_CHAR 122
 #define MAX_LIVES 10
 
-#define ALREADY_PLAYED 0b00100000
-#define NOT_PLAYED 0b00000000
-
 #define USER_WON 0b00010000
 #define COMPUTER_WON 0b01000000
 
+const char *CLEAR_SCREEN = "\033[H\033[J";
 
-
-void print_table(uint8_t *user_selections, uint8_t *computer_selections, uint8_t lives) {
+void print_table(uint32_t played_letters, uint32_t ownership_flags, uint8_t lives) {
     printf("%s", CLEAR_SCREEN);
-    printf("+------------+------------+\n");
-    printf("|    User    |  Computer  |\n");
-    printf("+------------+------------+\n");
-    for (int i = 0; i < MAX_LIVES; i++) {
-        printf("|     %c      |     %c      |\n",
-               user_selections[i] ? user_selections[i] : ' ',
-               computer_selections[i] ? computer_selections[i] : ' ');
-        printf("+------------+------------+\n");
+    printf("Guessed Letters (U = User, C = Computer)\n");
+    printf("+---+---+---+---+\n");
+
+    int col = 0;
+    for (char c = MIN_CHAR; c <= MAX_CHAR; c++) {
+        uint32_t bit = 1U << (c - MIN_CHAR);
+        char display = c;
+
+        if (played_letters & bit) {
+            if (ownership_flags & bit) {
+                // Usuario → verde
+                printf("| \033[32mU\033[0m ");
+            } else {
+                // Computadora → rojo
+                printf("| \033[31mC\033[0m ");
+            }
+        } else {
+            // No ha sido jugado
+            printf("| %c ", display);
+        }
+
+        col++;
+        if (col == 4) {
+            printf("|\n+---+---+---+---+\n");
+            col = 0;
+        }
     }
+
+    if (col != 0) {
+        for (int i = col; i < 4; i++) {
+            printf("|   ");
+        }
+        printf("|\n+---+---+---+---+\n");
+    }
+
     printf("Lives remaining: %d\n", lives);
 }
 
 
-
-const char *CLEAR_SCREEN = "\033[H\033[J";
-
-
-
-int main()
-{
-
-    // 00 computerScore 00 userScore 1010 user lives
-    uint8_t game_data = 0b00001010; //(0b00001010 = 10) 8 bits value where first two bits store a bit flag to signail if the machine or the user won (0 = still playing; 1 = player won) and the last 4 bits are to store the tries of the user (10 to 0)(max posible lifes with this aproach are 15)
+int main() {
+    uint8_t game_data = 0b00001010; // [64:pc win][32][16:user win][0-15: vidas]
     uint8_t rand_numb;
-    uint8_t user_selections[10] = {0}; // Initialize to 0
-    uint8_t computer_selections[10] = {0}; // Initialize to 0
-    uint8_t user_input, computer_guess;;
+    uint8_t user_input, computer_guess;
+    uint32_t played_letters = 0;
+    uint32_t ownership_flags = 0;
+    uint32_t letter_bit;
 
-    uint8_t round = 0; //KEEP TRACK ON THIS HANS
+    srand(time(NULL));
+    rand_numb = MIN_CHAR + (rand() % 26);
 
-    srand(time(NULL)); // Seed the random number generator
-    rand_numb = MIN_CHAR + (rand() % 26); // Random number between 97 and 122
+    while ((game_data & (USER_WON | COMPUTER_WON)) == 0 && (game_data & 0b00001111) > 0) {
+        print_table(played_letters, ownership_flags, game_data & 0b00001111);
 
-    
-        do
-        {
+        // Turno del usuario
+        printf("Enter your guess (a-z) or Ctrl+D to quit: ");
+        while (1) {
+            user_input = getchar();
 
-            print_table(user_selections, computer_selections, game_data & 0b00001111);
-
-            // User guess
-            printf("Enter your guess (a-z) or Ctrl+D to quit: ");
-
-            do
-            {
-                
-                
-                user_input = getchar();
-
-                while (getchar() != '\n'); // Clear input buffer is trolling
-                if (user_input == EOF) {
-                    game_data |= COMPUTER_WON;
-                    print_table(user_selections, computer_selections, game_data & 0b00001111);
-                    printf("You gave up. COMPUTER WINS!!\n");
-                    break;
-                }
-
-                game_data &= ~ALREADY_PLAYED; // Clear played flag
-
-                for(uint8_t i = 0; i < (10 - (game_data & 0b00001111)); i++){
-                    if (user_selections[i] == user_input)
-                    {
-                        game_data |= ALREADY_PLAYED; // 00 10 played letter flag  
-                        printf("This letter is already played\nEnter a valid guess:");
-                        break;
-                    }
-                }
-
-            } while ((user_input < 'a' || user_input > 'z') || ((game_data & 0b00100000) == 32));
-
-
-
-            
-            if (user_input != rand_numb)
-            {       
-                user_selections[(10 - (game_data & 0b00001111))] = user_input;
-                printf("Try again!\n");
-                game_data = (game_data & 0b11110000) | ((game_data & 0b00001111) - 1);
-            }
-            else
-            {
-                game_data = game_data | 0b00010000;
-                printf("YOU WIN!!\n");
-                break;
+            if (user_input == EOF) {
+                game_data |= COMPUTER_WON;
+                print_table(played_letters, ownership_flags, game_data & 0b00001111);
+                printf("You gave up. COMPUTER WINS!!\n");
+                return 0;
             }
 
+            if (user_input == '\n') continue;
 
-        } while ((game_data & 0b11110000) == 0 && (game_data & 0b00001111)); // (game_data & 0b11110000) == 0 extract the first 4 bits and compare with 0 (no one won yet) and (game_data & 0b00001111) extract the last 4 bits, I didn't compare it with 0 ("value>0") because I read that every number above 0 is readed as true; both of this ways in combination may reduce some CPU cycles depending in the compilator and CPU arquitecture (really nothing big but is something)
-    
+            if (user_input < MIN_CHAR || user_input > MAX_CHAR) {
+                printf("Invalid input. Try again: ");
+                while ((getchar()) != '\n');
+                continue;
+            }
+
+            letter_bit = 1U << (user_input - MIN_CHAR);
+
+            if (played_letters & letter_bit) {
+                printf("This letter is already played.\nEnter a valid guess: ");
+                while ((getchar()) != '\n');
+                continue;
+            }
+
+            break;
+        }
+
+        // Registrar jugada del usuario
+        played_letters |= letter_bit;
+        ownership_flags |= letter_bit;
+
+        if (user_input == rand_numb) {
+            game_data |= USER_WON;
+        } else {
+            printf("Try again!\n");
+            game_data = (game_data & 0b11110000) | ((game_data & 0b00001111) - 1);
+        }
+
+        // Turno de la computadora
+        do {
+            computer_guess = MIN_CHAR + (rand() % 26);
+            letter_bit = 1U << (computer_guess - MIN_CHAR);
+        } while (played_letters & letter_bit);
+
+        played_letters |= letter_bit;
+        ownership_flags &= ~letter_bit;
+
+        printf("Computer guessed: %c\n", computer_guess);
+
+        if (computer_guess == rand_numb) {
+            game_data |= COMPUTER_WON;
+        }/* else {
+            printf("Computer failed.\n");
+        }*/
+
+        // Mostrar tabla después de ambos turnos si alguien ganó
+        if (game_data & USER_WON) {
+            print_table(played_letters, ownership_flags, game_data & 0b00001111);
+            printf("YOU WIN!!\n");
+            break;
+        }
+
+        if (game_data & COMPUTER_WON) {
+            print_table(played_letters, ownership_flags, game_data & 0b00001111);
+            printf("COMPUTER WINS!!\n");
+            break;
+        }
+    }
+
+    if ((game_data & 0b00001111) == 0 && !(game_data & (USER_WON | COMPUTER_WON))) {
+        print_table(played_letters, ownership_flags, 0);
+        printf("Out of lives! COMPUTER WINS!!\n");
+    }
+
+    return 0;
 }
+
+
 /*
 
 |128|64 |32 |16 | 8 | 4 | 2 | 1 |
 +---+---+---+---+---+---+---+---+    +----+
 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 1 |    | 97 |
 +---+---+---+---+---+---+---+---+    +----+
+
 |128|64 |32 |16 | 8 | 4 | 2 | 1 |
 +---+---+---+---+---+---+---+---+    +-----+
 | 0 | 1 | 1 | 1 | 1 | 0 | 1 | 0 |    | 122 |
 +---+---+---+---+---+---+---+---+    +-----+
+
 |128|64 |32 |16 | 8 | 4 | 2 | 1 |
 +---+---+---+---+---+---+---+---+    +----+
 | 0 | 0 | 0 | 0 | 1 | 0 | 1 | 0 |    | 10 |
 +---+---+---+---+---+---+---+---+    +----+
+
 |128|64 |32 |16 | 8 | 4 | 2 | 1 |
 +---+---+---+---+---+---+---+---+    +---+
 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 1 |    | 9 |
 +---+---+---+---+---+---+---+---+    +---+
+
 |128|64 |32 |16 | 8 | 4 | 2 | 1 |
 +---+---+---+---+---+---+---+---+    +---+
 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 |    | 8 |
 +---+---+---+---+---+---+---+---+    +---+
+
 |128|64 |32 |16 | 8 | 4 | 2 | 1 |
 +---+---+---+---+---+---+---+---+    +---+
 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 1 |    | 7 |
 +---+---+---+---+---+---+---+---+    +---+
+
 |128|64 |32 |16 | 8 | 4 | 2 | 1 |
 +---+---+---+---+---+---+---+---+    +---+
 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 0 |    | 6 |
 +---+---+---+---+---+---+---+---+    +---+
+
 |128|64 |32 |16 | 8 | 4 | 2 | 1 |
 +---+---+---+---+---+---+---+---+    +---+
 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 1 |    | 5 |
 +---+---+---+---+---+---+---+---+    +---+
+
 |128|64 |32 |16 | 8 | 4 | 2 | 1 |
 +---+---+---+---+---+---+---+---+    +---+
 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 |    | 4 |
 +---+---+---+---+---+---+---+---+    +---+
+
 |128|64 |32 |16 | 8 | 4 | 2 | 1 |
 +---+---+---+---+---+---+---+---+    +---+
 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 |    | 3 |
 +---+---+---+---+---+---+---+---+    +---+
+
 |128|64 |32 |16 | 8 | 4 | 2 | 1 |
 +---+---+---+---+---+---+---+---+    +---+
 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 |    | 2 |
 +---+---+---+---+---+---+---+---+    +---+
+
 |128|64 |32 |16 | 8 | 4 | 2 | 1 |
 +---+---+---+---+---+---+---+---+    +---+
 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |    | 1 |
@@ -219,5 +273,15 @@ so liveS would be
  2 : 0010
  1 : 0001
  0 : 0000
+
+
+
+
+
+
+
+
+
+
 
 */
