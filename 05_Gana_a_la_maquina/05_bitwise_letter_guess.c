@@ -16,8 +16,6 @@ the computer get a random char for his guess (better if it can't repeat)
         computer wins the match and program ends
 if no one guesses correctly the char repeat until the user or the computer wins or the users ends with no oportunities
 
-
-
 For dysplay purposes, the game board will be printed in a 4x7 grid format.
 where each cell represents a letter from 'a' to 'z'.
 and when a letter is guessed, it will be replaced with either 'U' for user or 'C' for computer.
@@ -39,6 +37,21 @@ and when a letter is guessed, it will be replaced with either 'U' for user or 'C
 +---+---+---+---+
 
 
+Core Design & Logic:
+ - Letters guessed are tracked using a single 32-bit integer (`played_letters`), where each 
+   bit represents whether a letter has been played.
+ - Ownership of guessed letters (user vs computer) is tracked using another 32-bit integer
+   (`ownership_flags`), where a 1 means the user guessed it.
+ - The overall game state, including remaining lives and win conditions, is stored in an 
+   8-bit value (`game_data`), using lower 4 bits for lives and specific bits for win flags.
+ - The user's input is read using `getchar()` and stored in a signed 8-bit variable 
+   (`int8_t`) to correctly detect EOF (`-1`).
+ - Bitwise operations are used to check, update, and mark letter guesses efficiently,
+   replacing the need for arrays, reducing memory usage and improving CPU cache performance.
+
+This implementation emphasizes performance, minimal memory footprint, and clear output formatting 
+using ANSI escape sequences for screen control and colored output.
+
 */
 #include <stdio.h>      // For input/output functions
 #include <stdint.h>     // For fixed-size integer types
@@ -48,7 +61,6 @@ and when a letter is guessed, it will be replaced with either 'U' for user or 'C
 // ASCII range for lowercase letters
 #define MIN_CHAR 97
 #define MAX_CHAR 122
-#define MAX_LIVES 10
 
 // Bit flags to signal win states
 #define USER_WON 0b00010000
@@ -56,6 +68,8 @@ and when a letter is guessed, it will be replaced with either 'U' for user or 'C
 
 // ANSI escape sequence to clear the screen
 const char *CLEAR_SCREEN = "\033[H\033[J";
+
+const char *request;
 
 // Print the game board in a 4x7 grid
 void print_table(uint32_t played_letters, uint32_t ownership_flags, uint8_t lives)
@@ -111,13 +125,29 @@ int main()
 {
     uint8_t game_data = 0b00001010; // Bit-packed game state: bits [0-3] for lives, bit 4 USER_WON, bit 6 COMPUTER_WON
     uint8_t rand_numb;              // The target letter to guess
-    uint8_t user_input, computer_guess;  // Variables to hold guesses
+    uint8_t computer_guess;         // Variables to hold guesses
+    int8_t user_input;              //EOF returns -1 so it is needed a variable that can store a sign in it (the other way is to compare if the input is 255 but that normally equals to ÿ )
     uint32_t played_letters = 0;         // Track which letters have been guessed
     uint32_t ownership_flags = 0;        // Track who guessed each letter (1 = user, 0 = computer)
     uint32_t letter_bit;                 // Temporary bitmask for individual guesses
 
     srand(time(NULL));                   // Seed RNG with current time
     rand_numb = MIN_CHAR + (rand() % 26); // Choose a random target letter between 'a' and 'z'
+
+
+    // Prompt the user to enter a character
+    // Detect OS (operating system)
+    #ifdef _WIN32
+        request = "Enter your guess (a-z) (Ctrl+Z to end):\n";
+    #elif __APPLE__
+        request = "Enter your guess (a-z) (Ctrl+D to end):\n";
+    #elif __linux__
+        request = "Enter your guess (a-z) (Ctrl+D to end):\n";
+    #else
+        request = "Enter your guess (a-z) (Ctrl+D to end on Unix/Linux or Ctrl+Z on Windows):\n";
+    #endif
+
+
 
     // Game loop continues until win or lives are 0
     while ((game_data & (USER_WON | COMPUTER_WON)) == 0 && (game_data & 0b00001111) > 0)
@@ -126,7 +156,7 @@ int main()
         printf("Computer guessed: %c\n", computer_guess);  // Show last computer guess
 
         // USER TURN
-        printf("Enter your guess (a-z) or Ctrl+D to quit: ");
+        printf("%s", request);
         while (1)
         {
             user_input = getchar();  // Read user input
