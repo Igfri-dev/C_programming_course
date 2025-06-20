@@ -75,7 +75,8 @@ int main() {
     while (!USER_WON() && !COMP_WON() && GET_LIVES() > 0) {
         print_board();
 
-        printf("Enter a letter (Ctrl+D to quit): ");
+        printf("(Ctrl+D on Unix/Linux or Ctrl+Z on Windows)");
+        printf("Enter a letter: ");
         while (1) {
             input = getchar();
             if (input == EOF) {
