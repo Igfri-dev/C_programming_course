@@ -25,6 +25,7 @@
 #define COLOR_C "\033[31mC\033[0m"
 
 uint64_t game_state = 0;
+const char *OS_EXIT_MESSAGE;
 
 // Access macros
 #define SET_LETTER(ch, val) \
@@ -65,6 +66,20 @@ void print_board() {
 }
 
 int main() {
+
+    // Detect OS (operating system)
+    #ifdef _WIN32
+        OS_EXIT_MESSAGE = "E(Ctrl+Z to end)";
+    #elif __APPLE__
+        OS_EXIT_MESSAGE = "(Ctrl+D to end)";
+    #elif __linux__
+        OS_EXIT_MESSAGE = "(Ctrl+D to end)";
+    #else
+        OS_EXIT_MESSAGE = "(Ctrl+D to end on Unix/Linux or Ctrl+Z on Windows)";
+    #endif
+
+    
+    
     srand(time(NULL));
     uint8_t target = MIN_CHAR + (rand() % LETTERS);
     int8_t input;
@@ -75,7 +90,7 @@ int main() {
     while (!USER_WON() && !COMP_WON() && GET_LIVES() > 0) {
         print_board();
 
-        printf("(Ctrl+D on Unix/Linux or Ctrl+Z on Windows)");
+        printf("%s",OS_EXIT_MESSAGE);
         printf("Enter a letter: ");
         while (1) {
             input = getchar();
