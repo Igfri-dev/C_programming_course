@@ -65,15 +65,15 @@ int main(){
     uint8_t lives = 10;
     uint8_t won = INCORRECT;
     uint8_t guessed_by_computer[MAX_GUESSES] = {0};
-    uint8_t user_gesses[MAX_GUESSES];
+    //uint8_t user_guesses[MAX_GUESSES];
 
 
     srand(time(NULL));// for better randomness
 
     uint8_t target = rand() % (MAX_CHAR - MIN_CHAR +1) + 97;
 
-    printf("Random number: %d\n", target);
-    printf("Corresponding character: %c\n", target);
+    //printf("Random number: %d\n", target);
+    //printf("Corresponding character: %c\n", target);
 
     while (lives > 0 && won == INCORRECT) {
         //printf("%s", CLEAR_SCREEN);
@@ -99,7 +99,7 @@ int main(){
             break;
         } else {
             printf("Wrong guess.\n");
-            user_gesses[MAX_GUESSES-lives] = user_input;
+            //user_guesses[MAX_GUESSES-lives] = user_input;
             lives--;
         }
 
