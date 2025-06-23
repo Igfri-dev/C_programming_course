@@ -1,0 +1,8 @@
+Hola mundo 123
+Esto	es	una	prueba
+con		tabulaciones	y	números: 456 789
+
+¿Funcionará bien?
+1 2 3 4 5 6 7 8 9 0
+
+Fin.

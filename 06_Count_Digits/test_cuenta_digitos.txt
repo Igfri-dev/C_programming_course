@@ -1,0 +1,17 @@
+Hola mundo 123
+Esto	es	una	prueba
+con		tabulaciones	y	números: 456 789
+
+¿Funcionará bien?
+1 2 3 4 5 6 7 8 9 0
+
+Fin.
+
+Repetimos números para aumentar los conteos:
+111222333444555666777888999000
+
+Otra línea con más dígitos:
+98765432101234567890
+
+Y una última con una secuencia larga:
+123123123123123123123123123123123123123123123123123123123123
