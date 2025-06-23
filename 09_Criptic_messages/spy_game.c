@@ -1,4 +1,8 @@
 /*
+    Author: Igfri (Hans Behrens)
+    Github: https://github.com/Igfri-dev/C_programming_course
+*/
+/*
 Encryption by displacement in alphabet by a 'n'
 
 
